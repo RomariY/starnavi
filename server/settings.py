@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 
@@ -36,15 +37,17 @@ BASIC = [
 ]
 
 THIRD_PARTY = [
-    "rest_framework",
-    "rest_framework.authtoken",
-    "drf_yasg",
-    "django_filters",
-    "corsheaders",
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_yasg',
+    'django_filters',
+    'corsheaders',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 APPS = [
-    # "api.users.apps.UsersConfig"
+    "api.users.apps.UsersConfig"
 ]
 
 INSTALLED_APPS = BASIC + THIRD_PARTY + APPS
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.users.middlewares.UpdateLastActivityLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'server.urls'
@@ -101,12 +105,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'api.utils.validators.DigitsLengthPasswordValidator',
+        'OPTIONS': {
+            'digit_length': 1,
+        }
+    },
+    {
+        'NAME': 'api.utils.validators.SpecialCharacterPasswordValidator',
+        'OPTIONS': {
+            'special_character_length': 1,
+        }
     },
 ]
 
@@ -123,16 +142,37 @@ USE_TZ = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         # 'rest_framework.permissions.AllowAny',
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
+}
+
+ACCESS_TOKEN_LIFETIME = timedelta(minutes=5)
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "UPDATE_LAST_LOGIN": True,
+
+    "ALGORITHM": 'RS256',
+    'SIGNING_KEY': os.getenv('SIGNING_KEY'),
+    'VERIFYING_KEY': os.getenv('VERIFYING_KEY'),
+}
+
+# Swagger
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Basic": {"type": "basic"},
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    }
 }
 
 # Static files (CSS, JavaScript, Images)

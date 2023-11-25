@@ -15,29 +15,38 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
+from django.urls import path, include
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView, TokenBlacklistView,
+)
 
 from server import settings
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Starnavi API",
-      default_version='v1',
-   ),
-   public=True,
-   permission_classes=[permissions.AllowAny,],
+    openapi.Info(
+        title="Starnavi API",
+        default_version='v1',
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny, ],
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('api/sign-in/', TokenObtainPairView.as_view(), name='login'),
+    path('api/sign-in/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/sign-out/', TokenBlacklistView.as_view(), name='token_blacklist'),
+
+    path("api/", include("api.users.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += [
-        path("api/docs/", schema_view.with_ui(), name="schema-swagger-ui"),
+        path("api/swagger/", schema_view.with_ui(), name="schema-swagger-ui"),
         path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     ]
