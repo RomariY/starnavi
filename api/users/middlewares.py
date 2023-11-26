@@ -20,9 +20,13 @@ class UpdateLastActivityLoginMiddleware:
             UserProfile.objects.filter(user=request.user).update(last_activity=timezone.now())
         response = self.get_response(request)
 
-        access_token = response.data.get("access")
-        if request.path in (reverse("login"), reverse("token_refresh")) and access_token:
-            decoded_token = AccessToken(response.data.get("access"))
-            User.objects.filter(id=decoded_token.get("user_id")).update(last_login=timezone.now())
+        # TODO remake this \|/
+        try:
+            access_token = response.data.get("access")
+            if request.path in (reverse("login"), reverse("token_refresh")) and access_token:
+                decoded_token = AccessToken(response.data.get("access"))
+                User.objects.filter(id=decoded_token.get("user_id")).update(last_login=timezone.now())
+        except:
+            pass
 
         return response

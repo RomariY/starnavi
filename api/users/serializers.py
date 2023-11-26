@@ -43,7 +43,7 @@ class SignUpSerializer(PasswordValidatorMixin, BaseUserSerializer, serializers.M
 
     class Meta:
         model = UserProfile
-        fields = [
+        fields = (
             "id",
             "email",
             "first_name",
@@ -51,7 +51,7 @@ class SignUpSerializer(PasswordValidatorMixin, BaseUserSerializer, serializers.M
             "password",
             "bio",
             "phone",
-        ]
+        )
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -75,11 +75,11 @@ class UserProfileSerializer(BaseUserSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = [
+        fields = (
             "id",
             "email",
             "first_name",
             "last_name",
             "bio",
             "phone",
-        ]
+        )

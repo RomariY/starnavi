@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/sign-out/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
     path("api/", include("api.users.urls")),
+    path("api/", include("api.posts.urls")),
 ]
 
 if settings.DEBUG:
