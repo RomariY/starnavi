@@ -13,7 +13,7 @@ class Post(UUIDModel, TimeStamp):
     location (str): post location if available
     likes (M2M): The users who liked the specific post
     """
-    photo = models.ImageField(upload_to="posts")
+    photo = models.ImageField(upload_to="posts", blank=True, null=True)
     title = models.CharField(max_length=100)
     caption = models.TextField(blank=True, null=True)
     owner = models.ForeignKey("users.UserProfile", on_delete=models.CASCADE)

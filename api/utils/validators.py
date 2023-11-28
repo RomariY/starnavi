@@ -14,7 +14,8 @@ class DigitsLengthPasswordValidator:
         self.digit_length = digit_length
 
     def validate(self, password, user=None):
-        if not len(re.findall(r'\d', password)) == self.digit_length:
+        # print(len(re.findall(r'\d', password)))
+        if len(re.findall(r'\d', password)) < self.digit_length:
             raise ValidationError(f'Password must contain at least {self.digit_length} digit.')
 
 
